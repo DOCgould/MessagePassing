@@ -28,7 +28,7 @@ class node_base(ABC, threading.Thread):
         '''
 
         if foreign_address:
-            self._publisher.publish(Address=foreign_address, msg)
+            self._publisher.publish(address=foreign_address, msg)
 
         return self._writer.write(Register=local_address, msg)
 
