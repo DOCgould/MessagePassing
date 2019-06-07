@@ -33,7 +33,8 @@ class node_base(ABC, threading.Thread):
         return self._writer.write(Register=local_address, msg)
 
     def _recv(self, address, local=True):
-        pass
+	if local:
+		self._reader.read(address
 
     @abstractmethod
     def run(self):
