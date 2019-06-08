@@ -1,3 +1,4 @@
+
 import threading
 from communicationUtils import network
 from communicationUtils import local
@@ -28,21 +29,47 @@ class node_base(ABC, threading.Thread):
         '''
 
         if foreign_address:
-            self._publisher.publish(address=foreign_address, msg)
+            self._publisher.publish(foreign_address, msg)
 
-        return self._writer.write(Register=local_address, msg)
+        self._writer.write(address=local_address, msg)
+
+        return 0;
 
     def _recv(self, address, local=True):
-	'''
-	Gets your message from the addresses provided, either local or foreign
-	'''
-	if not local:
-		return self._subscriber.subscribe(address)
-	else:
-		return self._writer.read(Register=address)
+        '''
+            Gets your message from the addresses provided, either local or foreign
+        '''
+    if not local:
+        return self._subscriber.subscribe(address)
+    else:
+        return self._reader.read(address)
 
     @abstractmethod
     def run(self):
         pass
 
 if __name__=='__main__':
+    import time
+
+    class PrintNode(node_base):
+        def __init__(self, IP, MEM):
+            node_base__init__(self, IP, MEM)
+            self._memory = IP
+            self._ip_route = MEM
+            self.MSG='uninitialized'
+            self.baud=.128
+
+        def set_message(message):
+            self.MSG=message
+        def set_baudrate(baudrate):
+            self.baud=baudrate
+
+        def run(self):
+            start_time = time.time
+            while True:
+                if (time.time - start_time) >= self.baud:
+                    self._send('Encrypted_dat', msg=self.MSG)
+                    print(self._recv('Encrypted_dat')) # Local True By Default
+                    start_time=time.time
+                else:
+                    time.sleep(0)
