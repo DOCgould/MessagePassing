@@ -4,10 +4,10 @@ class reader(object):
 		'''
 		self.MEM=volatile_memory
 
-	def read(self, address):
+	def read(self, Register):
 		'''
 		'''
-		return self.MEM[address]
+		return self.MEM[Register]
 
 class writer(object):
 	def __init__(self, volatile_memory):

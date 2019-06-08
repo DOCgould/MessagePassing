@@ -33,12 +33,16 @@ class node_base(ABC, threading.Thread):
         return self._writer.write(Register=local_address, msg)
 
     def _recv(self, address, local=True):
-	if local:
-		self._reader.read(address
+	'''
+	Gets your message from the addresses provided, either local or foreign
+	'''
+	if not local:
+		return self._subscriber.subscribe(address)
+	else:
+		return self._writer.read(Register=address)
 
     @abstractmethod
     def run(self):
         pass
 
 if __name__=='__main__':
-    print('')
