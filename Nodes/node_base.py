@@ -1,5 +1,6 @@
-
+import time
 import threading
+
 from communicationUtils import network
 from communicationUtils import local
 from abc import ABC, abstractmethod
@@ -31,7 +32,7 @@ class node_base(ABC, threading.Thread):
         if foreign_address:
             self._publisher.publish(foreign_address, msg)
 
-        self._writer.write(address=local_address, msg)
+        self._writer.write(local_address, msg)
 
         return 0;
 
@@ -39,10 +40,10 @@ class node_base(ABC, threading.Thread):
         '''
             Gets your message from the addresses provided, either local or foreign
         '''
-    if not local:
-        return self._subscriber.subscribe(address)
-    else:
-        return self._reader.read(address)
+        if not local:
+            return self._subscriber.subscribe(address)
+        else:
+            return self._reader.read(address)
 
     @abstractmethod
     def run(self):
@@ -53,9 +54,9 @@ if __name__=='__main__':
 
     class PrintNode(node_base):
         def __init__(self, IP, MEM):
-            node_base__init__(self, IP, MEM)
-            self._memory = IP
-            self._ip_route = MEM
+            node_base.__init__(self, IP, MEM)
+            self._memory = MEM
+            self._ip_route = IP
             self.MSG='uninitialized'
             self.baud=.128
 
@@ -65,11 +66,21 @@ if __name__=='__main__':
             self.baud=baudrate
 
         def run(self):
-            start_time = time.time
+            start_time = time.time()
             while True:
-                if (time.time - start_time) >= self.baud:
-                    self._send('Encrypted_dat', msg=self.MSG)
+                if ( (time.time() - start_time) >= self.baud ):
+                    self._send(msg=self.MSG, local_address='Encrypted_dat')
                     print(self._recv('Encrypted_dat')) # Local True By Default
-                    start_time=time.time
+                    start_time=time.time()
                 else:
                     time.sleep(0)
+
+    # Volatile Memory Instances
+    ID={'127.0.0.101':5558}
+    MEM={'Velocity_x':12.01,'Velocity_y':12.02,'Velocity_z':12.03,'Encrypted_dat':'bleh'}
+
+    # Initialize Node
+    MyPrintNode = PrintNode(ID, MEM)
+
+    # Start Thread
+    MyPrintNode.start()
